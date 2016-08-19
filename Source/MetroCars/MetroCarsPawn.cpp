@@ -16,11 +16,13 @@
 #include "Engine/SkeletalMesh.h"
 
 
+
 // Needed for VR Headset
 #include "Engine.h"
 #if HMD_MODULE_INCLUDED
 #include "IHeadMountedDisplay.h"
 #endif // HMD_MODULE_INCLUDED
+
 
 const FName AMetroCarsPawn::LookUpBinding("LookUp");
 const FName AMetroCarsPawn::LookRightBinding("LookRight");
@@ -110,28 +112,11 @@ AMetroCarsPawn::AMetroCarsPawn()
 	// Set the inertia scale. This controls how the mass of the vehicle is distributed.
 	Vehicle4W->InertiaTensorScale = FVector(1.0f, 1.333f, 1.2f);
 
-	// Create a spring arm component for our chase camera
-	SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArm"));
-	SpringArm->SetRelativeLocation(FVector(0.0f, 0.0f, 34.0f));
-	SpringArm->SetWorldRotation(FRotator(-20.0f, 0.0f, 0.0f));
-	SpringArm->SetupAttachment(RootComponent);
-	SpringArm->TargetArmLength = 125.0f;
-	SpringArm->bEnableCameraLag = false;
-	SpringArm->bEnableCameraRotationLag = false;
-	SpringArm->bInheritPitch = true;
-	SpringArm->bInheritYaw = true;
-	SpringArm->bInheritRoll = true;
 
-	// Create the chase camera component 
-	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("ChaseCamera"));
-	Camera->SetupAttachment(SpringArm, USpringArmComponent::SocketName);
-	Camera->SetRelativeLocation(FVector(-125.0, 0.0f, 0.0f));
-	Camera->SetRelativeRotation(FRotator(10.0f, 0.0f, 0.0f));
-	Camera->bUsePawnControlRotation = false;
-	Camera->FieldOfView = 90.f;
 
 	// Create In-Car camera component 
-	InternalCameraOrigin = FVector(-34.0f, -10.0f, 50.0f);
+
+    InternalCameraOrigin = FVector(-34.0f, -10.0f, 50.0f);
 	InternalCameraBase = CreateDefaultSubobject<USceneComponent>(TEXT("InternalCameraBase"));
 	InternalCameraBase->SetRelativeLocation(InternalCameraOrigin);
 	InternalCameraBase->SetupAttachment(GetMesh());
@@ -139,22 +124,12 @@ AMetroCarsPawn::AMetroCarsPawn()
 	InternalCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("InternalCamera"));
 	InternalCamera->bUsePawnControlRotation = false;
 	InternalCamera->FieldOfView = 90.f;
-	InternalCamera->SetupAttachment(InternalCameraBase);
+    InternalCamera->SetupAttachment(InternalCameraBase);
 
-    // Create Rear view camera component
-    /*RearCameraOrigin = FVector(-125.0f, -10.0f, 70.0f);
-    RearCameraBase = CreateDefaultSubobject<USceneComponent>(TEXT("RearCameraBase"));
-    RearCameraBase->SetRelativeLocation(RearCameraOrigin);
-    RearCameraBase->SetupAttachment(GetMesh());
-
-    RearCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("RearCamera"));
-    RearCamera->bUsePawnControlRotation = false;
-    RearCamera->FieldOfView = 120.f;
-    RearCamera->SetupAttachment(RearCameraBase);*/
 
     // Create the rear camera component
 
-    // Create a spring arm component for our chase camera
+    // Create a spring arm component for rear chase camera
     SpringArmRear = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArmRear"));
     SpringArmRear->SetRelativeLocation(FVector(0.0f, 0.0f, 34.0f));
     SpringArmRear->SetWorldRotation(FRotator(-20.0f, 180.0f, 0.0f));
@@ -170,9 +145,35 @@ AMetroCarsPawn::AMetroCarsPawn()
     RearCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("RearCamera"));
     RearCamera->SetupAttachment(SpringArmRear, USpringArmComponent::SocketName);
     RearCamera->SetRelativeLocation(FVector(-125.0, 0.0f, 0.0f));
-    RearCamera->SetRelativeRotation(FRotator(10.0f, 0.0f, 0.0f));
+    RearCamera->SetRelativeRotation(FRotator(10.0f, 180.0f, 0.0f));
     RearCamera->bUsePawnControlRotation = false;
     RearCamera->FieldOfView = 120.f;
+
+
+    // Create a spring arm component for our chase camera
+    SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArm"));
+    SpringArm->SetRelativeLocation(FVector(0.0f, 0.0f, 34.0f));
+    SpringArm->SetWorldRotation(FRotator(-20.0f, 0.0f, 0.0f));
+    SpringArm->SetupAttachment(RootComponent);
+    SpringArm->TargetArmLength = 125.0f;
+    SpringArm->bEnableCameraLag = false;
+    SpringArm->bEnableCameraRotationLag = false;
+    SpringArm->bInheritPitch = true;
+    SpringArm->bInheritYaw = true;
+    SpringArm->bInheritRoll = true;
+
+    // Create the chase camera component
+    Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("ChaseCamera"));
+    Camera->SetupAttachment(SpringArm, USpringArmComponent::SocketName);
+    Camera->SetRelativeLocation(FVector(-125.0, 0.0f, 0.0f));
+    Camera->SetRelativeRotation(FRotator(10.0f, 0.0f, 0.0f));
+    Camera->bUsePawnControlRotation = false;
+    Camera->FieldOfView = 90.f;
+
+    Capture = CreateDefaultSubobject<USceneCaptureComponent2D>(TEXT("Capture"));
+    Capture->SetRelativeLocation(FVector(0.0, 0.0f, 20.0f));
+    Capture->SetRelativeRotation(FRotator(0.0f, 0.0f, -180.0f));
+
 
 	// In car HUD
 	// Create text render component for in car speed display
@@ -252,20 +253,20 @@ void AMetroCarsPawn::EnableIncarView(const bool bState)
 {
 	if (bState != bInCarCameraActive)
 	{
-		bInCarCameraActive = bState;
-		
+        bInCarCameraActive = bState;
+
 		if (bState == true)
 		{
 			OnResetVR();
-			Camera->Deactivate();
-			InternalCamera->Activate();
+            InternalCamera->Deactivate();
+            RearCamera->Activate();
 		}
 		else
 		{
-			InternalCamera->Deactivate();
-			Camera->Activate();
+            RearCamera->Deactivate();
+            InternalCamera->Activate();
 		}
-		
+
 		InCarSpeed->SetVisibility(bInCarCameraActive);
 		InCarGear->SetVisibility(bInCarCameraActive);
 	}
@@ -298,10 +299,11 @@ void AMetroCarsPawn::Tick(float Delta)
 	{
 		if ( (InputComponent) && (bInCarCameraActive == true ))
 		{
-			FRotator HeadRotation = InternalCamera->RelativeRotation;
-			HeadRotation.Pitch += InputComponent->GetAxisValue(LookUpBinding);
+            /*FRotator HeadRotation = InternalCamera->RelativeRotation;
+            HeadRotation.Pitch += InputComponent->GetAxisValue(LookUpBinding);
 			HeadRotation.Yaw += InputComponent->GetAxisValue(LookRightBinding);
-			InternalCamera->RelativeRotation = HeadRotation;
+            InternalCamera->RelativeRotation = HeadRotation;
+            */
 		}
 	}	
 
@@ -328,6 +330,8 @@ void AMetroCarsPawn::BeginPlay()
 	EnableIncarView(bWantInCar);
 	// Start an engine sound playing
 	EngineSoundComponent->Play();
+
+
 }
 
 void AMetroCarsPawn::OnResetVR()
@@ -335,7 +339,7 @@ void AMetroCarsPawn::OnResetVR()
 #if HMD_MODULE_INCLUDED
 	if (GEngine->HMDDevice.IsValid())
 	{
-		GEngine->HMDDevice->ResetOrientationAndPosition();
+		GEngine->HMDDevice->ResetOrientationAndPosition();       
 		InternalCamera->SetRelativeLocation(InternalCameraOrigin);
 		GetController()->SetControlRotation(FRotator());
 	}

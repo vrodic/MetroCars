@@ -5,6 +5,7 @@
 
 class UPhysicalMaterial;
 class UCameraComponent;
+class USceneCaptureComponent2D;
 class USpringArmComponent;
 class UTextRenderComponent;
 class UInputComponent;
@@ -15,16 +16,22 @@ class AMetroCarsPawn : public AWheeledVehicle
 	GENERATED_BODY()
 
 	/** Spring arm that will offset the camera */
-	UPROPERTY(Category = Camera, VisibleDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	USpringArmComponent* SpringArm;
+    UPROPERTY(Category = Camera, VisibleDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+    USpringArmComponent* SpringArm;
+
+    /** Camera component that will be our viewpoint */
+    UPROPERTY(Category = Camera, VisibleDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+    UCameraComponent* Camera;
 
 
     UPROPERTY(Category = Camera, VisibleDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
     USpringArmComponent* SpringArmRear;
 
-	/** Camera component that will be our viewpoint */
-	UPROPERTY(Category = Camera, VisibleDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	UCameraComponent* Camera;
+
+    /** Camera component that will be our viewpoint */
+    UPROPERTY(Category = Capture, VisibleDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+    USceneCaptureComponent2D* Capture;
+
 
     /** Camera component that will be our viewpoint */
     UPROPERTY(Category = Camera, VisibleDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
@@ -134,9 +141,9 @@ private:
 
 public:
 	/** Returns SpringArm subobject **/
-	FORCEINLINE USpringArmComponent* GetSpringArm() const { return SpringArm; }
+    //FORCEINLINE USpringArmComponent* GetSpringArm() const { return SpringArm; }
 	/** Returns Camera subobject **/
-	FORCEINLINE UCameraComponent* GetCamera() const { return Camera; }
+//	FORCEINLINE UCameraComponent* GetCamera() const { return Camera; }
 	/** Returns InternalCamera subobject **/
 	FORCEINLINE UCameraComponent* GetInternalCamera() const { return InternalCamera; }
 	/** Returns InCarSpeed subobject **/
