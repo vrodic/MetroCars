@@ -1,0 +1,8 @@
+{
+	"Changelist" : 0,
+	"BuildId" : "",
+	"Modules" : 
+	{
+		"ExtraCamWindow" : "libUE4Editor-ExtraCamWindow.so"
+	}
+}
