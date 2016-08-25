@@ -61,6 +61,7 @@ SourceArt/**/*.tga
 Binaries/*
 
 Plugins/ExtraCamWindow/Binaries/*
+.idea/*
 
 # Builds
 Build/*

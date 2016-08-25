@@ -169,12 +169,11 @@ AMetroCarsPawn::AMetroCarsPawn()
     Camera->SetRelativeRotation(FRotator(10.0f, 0.0f, 0.0f));
     Camera->bUsePawnControlRotation = false;
     Camera->FieldOfView = 90.f;
-
+/*
     Capture = CreateDefaultSubobject<USceneCaptureComponent2D>(TEXT("Capture"));
     Capture->SetRelativeLocation(FVector(0.0, 0.0f, 20.0f));
     Capture->SetRelativeRotation(FRotator(0.0f, 0.0f, -180.0f));
-
-
+*/
 	// In car HUD
 	// Create text render component for in car speed display
 	InCarSpeed = CreateDefaultSubobject<UTextRenderComponent>(TEXT("IncarSpeed"));
